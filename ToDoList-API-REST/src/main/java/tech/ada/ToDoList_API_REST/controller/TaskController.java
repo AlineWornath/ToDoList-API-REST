@@ -1,23 +1,49 @@
 package tech.ada.ToDoList_API_REST.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import tech.ada.ToDoList_API_REST.model.Task;
+import tech.ada.ToDoList_API_REST.service.TaskService;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
 
-public interface TaskController {
+@RestController
+@RequestMapping("/tasks")
+@Validated
+public class TaskController {
 
-    Task createTask(String title, String description, String deadline, Task.Status status);
+    private final TaskService taskService;
 
-    Task updateTask(Long id, String title, String description, String deadline, Task.Status status);
+    @Autowired
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
-    Task updateTaskStatus(Long id, Task.Status newStatus);
+    @PostMapping
+    public Task createTask(@RequestBody Task task) {
+        return taskService.save(task);
+    }
 
-    List<Task> getAllTasks(Optional<Comparator<Task>> orderBy);
+    @GetMapping
+    public List<Task> getAllTasks() {
+        return taskService.findAll();
+    }
 
-    List<Task> getTasksByStatus(Task.Status status, Optional<Comparator<Task>> orderBy);
+    @GetMapping("/{status}")
+    public List<Task> getTasksByStatus(@PathVariable Task.Status status) {
+        return taskService.findByStatus(status);
+    }
 
-    List<Task> getTasksBy(Predicate<Task> predicate, Optional<Comparator<Task>> orderBy);
+    @PutMapping("/{id}")
+    public Task updateTaskStatus(@PathVariable Long id, @RequestBody Task.Status status) {
+        return taskService.updateStatus(id, status);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteAllTasks() {
+        taskService.deleteAll();
+        return ResponseEntity.ok("Todas as tarefas foram deletadas com sucesso.");
+    }
 }
