@@ -49,14 +49,6 @@ Para acessar a documentação interativa com Swagger:
 
 ---
 
-## 📐 Diagrama de Classes
-
-![Diagrama de Classes](docs/diagrama.png)
-
-> O diagrama acima apresenta as principais classes da aplicação e suas relações.
-
----
-
 ## 🧪 Exemplos de Uso
 
 ### Criar uma nova tarefa
