@@ -1,23 +1,42 @@
 package tech.ada.ToDoList_API_REST.model;
 
-import java.time.LocalDate;
-import java.util.Objects;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
+import java.time.LocalDate;
+
+@Entity
 public class Task {
 
-    private Long id;
-    private String title;
-    private String description;
-    private LocalDate deadline;
-    private Status status;
+    public Task() {}
 
-    public Task(Long id, String title, String description, LocalDate deadline, Status status) {
-        this.id = id;
+    public Task(String title, String description, LocalDate deadline, Status status) {
         this.title = title;
         this.description = description;
         this.deadline = deadline;
         this.status = status;
     }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank(message = "O título é obrigatório.")
+    @Size(max = 100, message = "O título não pode ter mais de 100 caracteres.")
+    private String title;
+
+    @NotBlank(message = "A descrição é obrigatória.")
+    @Size(max = 500, message = "A descrição não pode ter mais de 500 caracteres.")
+    private String description;
+
+    @NotNull
+    @FutureOrPresent(message = "A data de entrega deve ser no futuro ou no presente.")
+    private LocalDate deadline;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Status status;
 
     public enum Status {
         PENDENTE("Pendente"),
@@ -42,14 +61,6 @@ public class Task {
             }
             throw new IllegalArgumentException("Status inválido: " + status);
         }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -84,24 +95,11 @@ public class Task {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "📌 Tarefa #%d%nTítulo: %s%nDescrição: %s%n📅 Prazo: %s%n🔄 Status: %s%n",
-                id, title, description, deadline, status.getDescricao()
-        );
+    public Long getId() {
+        return id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return Objects.equals(id, task.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public void setId(Long id) {
+        this.id = id;
     }
 }

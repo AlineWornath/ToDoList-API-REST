@@ -1,39 +1,63 @@
 package tech.ada.ToDoList_API_REST.service;
 
-import tech.ada.ToDoList_API_REST.dto.TaskUpdateRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import tech.ada.ToDoList_API_REST.model.Task;
+import tech.ada.ToDoList_API_REST.repository.TaskRepository;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
-public interface TaskService {
+@Service
+public class TaskService {
 
-    Task save(Task task);
+    private final TaskRepository taskRepository;
 
-    List<Task> findAll(Optional<Comparator<Task>> orderBy);
-
-    List<Task> findByStatus(Task.Status status, Optional<Comparator<Task>> orderBy);
-
-    List<Task> findBy(Predicate<Task> predicate, Optional<Comparator<Task>> orderBy);
-
-    Optional<Task> findById(Long id);
-
-    default Task getById(Long id) {
-        return findById(id).orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada"));
+    @Autowired
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
+    public Task save(Task task) {
+        return taskRepository.save(task);
+    }
 
-    boolean deleteById(Long id);
+    public List<Task> findAll() {
+        return taskRepository.findAll();
+    }
 
-    void clearAll();
+    public Optional<Task> findById(Long id) {
+        return taskRepository.findById(id);
+    }
 
-    Task updateTask(TaskUpdateRequest updateRequest);
+    public List<Task> findByStatus(Task.Status status) {
+        return taskRepository.findByStatus(status);
+    }
 
-    Task updateStatus(Long id, Task.Status newStatus);
+    public void deleteById(Long id) {
+        Optional<Task> task = taskRepository.findById(id);
 
-    void stopNotifier();
+        if (task.isEmpty()) {
+            throw new IllegalArgumentException("Tarefa não encontrada com o ID: " + id);
+        }
 
-    void startNotifier();
+        taskRepository.deleteById(id);
+    }
+
+    public Task updateStatus(Long id, Task.Status status) {
+        Optional<Task> optionalTask = taskRepository.findById(id);
+
+        if (optionalTask.isEmpty()) {
+            throw new IllegalArgumentException("Tarefa não encontrada com o ID: " + id);
+        }
+
+        Task task = optionalTask.get();
+
+        task.setStatus(status);
+
+        return taskRepository.save(task);
+    }
+    public void deleteAll() {
+        taskRepository.deleteAll();
+    }
 }
